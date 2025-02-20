@@ -1,0 +1,45 @@
+
+
++---------------------------+
+| ANNOTATION et REFLECTION  |
+| CRUD all object ...       |
++---------------------------+
+
+
+. Annotation
+    - Table (nom_table)
+    - Colonne (nom_colonne)
+    - PrimaryKey (primaryKey)
+
+REGLE DE CONSTRUCTION BEANS 
+BEANS (les beans qui ont des accées à la base)
+    -> DECLARATION ATTRIBUT:
+     . premier lettre toujours MAJUSCULE
+     . tsy maints object fona no apesaina
+     . Exception pour les dates (raha ohatra ka misy fifandraisana any am base)
+       Date -> Date.sql no apesaina
+    -> ANNOTATION:
+     . class (Table)
+     . Attribut (PrimaryKey/ Colonne)
+    -> GETTERS and SETTERS:
+     . tsy maintsy mis getters sy setters daoly ny attrs reetra
+     . nom methode:
+        - methode "get" : get + nom Attribut
+        - methode "set" : set + nom Attribut
+    -> CONSTRUCTEUR:
+     . Constructeur par defaut tsy maints definie ao anatin classe
+
+
+. reflection
+    get_nomClasse (object)
+    Class <?> [] get_paramsTYPE (object_parms[])
+    void execute_methode (object, nom_methode, object_parms[])
+    object execute_methode (object, nom_methode, object_parms[])
+
+pour le criteria intervalle 
+    [0] -> VALEUR MINIMUM
+    [1] -> VALEUR MAXIMUM
+ 
+
+SONG 
+sels kiriko     

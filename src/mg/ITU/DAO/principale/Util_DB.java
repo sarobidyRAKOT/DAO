@@ -5,7 +5,7 @@ package mg.ITU.DAO.principale;
 import java.sql.*;
 import java.util.Properties;
 
-public class Util_BD {
+public class Util_DB {
     
     private String user;
     private String password;
@@ -15,9 +15,9 @@ public class Util_BD {
     Connection conn;
     
     
-    public Util_BD () {}
+    public Util_DB () {}
 
-    private Util_BD (String url, String user, String password) {
+    private Util_DB (String url, String user, String password) {
         this.url = url;
         this.user = user;
         this.password = password;
@@ -25,7 +25,7 @@ public class Util_BD {
 
 
 
-    public static Util_BD get_Instance () throws ClassNotFoundException {
+    public static Util_DB get_Instance () throws ClassNotFoundException {
 
         Properties properties = LoaderProperties.load_properties();
 
@@ -36,7 +36,7 @@ public class Util_BD {
 
         try {
             Class.forName(className);
-            Util_BD util_BD = new Util_BD(url, user, mdp);
+            Util_DB util_BD = new Util_DB(url, user, mdp);
             return util_BD;
         } catch (ClassNotFoundException e) {
             throw e;

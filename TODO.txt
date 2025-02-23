@@ -1,4 +1,7 @@
-
+SELECT * FROM employer
+WHERE
+???
+LIMIT 5 OFFSET 0
 
 +---------------------------+
 | ANNOTATION et REFLECTION  |

@@ -1,25 +1,26 @@
 package mg.ITU.DAO.reflexion;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 
 public class Reflexion {
     
-    public String get_nomClasse (Object object) {
+    public static String get_nomClasse (Object object) {
         /** maka anaran le objet en parametre... */
         return object.getClass().getSimpleName();
     }
 
     
-    public Class <?>[] get_paramsTYPE (Object[] params) {
+    public static Class <?>[] get_paramsTYPE (Object[] params) {
         /** maka type[] object  */
         Class <?>[] type_params = null;
         if (params != null && params.length > 0) {
             type_params = new Class <?>[params.length];
             int i = 0;
-            for (Object clazz : params) {
-                type_params[i] = clazz.getClass();
+            for (Object param : params) {
+                type_params[i] = param.getClass();
                 ++ i; //  incrementer i
             }
         }
@@ -28,7 +29,7 @@ public class Reflexion {
     }
 
     
-    public Field get_fieldClasse_byName (ArrayList <Field> fields, String attr_name) {
+    public static Field get_fieldClasse_byName (ArrayList <Field> fields, String attr_name) {
         
         Field attr = null;
         for (Field field : fields) {
@@ -41,34 +42,75 @@ public class Reflexion {
     }
 
 
-    public void execute_METHOD (Object object, String methode_name, Object[] params) 
-        throws Exception {
-        /** EXECUTE methode SANS RETURN */
+    
+    public static void executeMethod_NR (Object object, String methode_name, Object[] params, Class <?>[] type_params) throws ReflectiveOperationException {
+        /** EXECUTE methode SANS RETOUR */
+        
         Class <?> clazz = object.getClass();
-        Class <?>[] type_params = this.get_paramsTYPE(params);
+        
+        try {
+            Method method = clazz.getDeclaredMethod(methode_name, type_params);
+            method.invoke(object, params); // appeller la methode
+        } catch (SecurityException | IllegalAccessException | IllegalArgumentException e) {
+            e.printStackTrace();
+        } catch (InvocationTargetException | NoSuchMethodException e) {
+            // Exception d'origine de l'objet mere
+            throw e;
+        }
+    }
+
+    public static void executeMethod_NR (Object object, String methode_name, Object[] params) throws ReflectiveOperationException {
+        /** EXECUTE methode SANS RETOUR */
+        
+        Class <?> clazz = object.getClass();
+        Class <?>[] type_params = Reflexion.get_paramsTYPE(params);
 
         try {
             Method method = clazz.getDeclaredMethod(methode_name, type_params);
             method.invoke(object, params); // appeller la methode
-        } catch (NoSuchMethodException | SecurityException e) {
-            /// throws Exception
-            throw e; 
+        } catch (SecurityException | IllegalAccessException | IllegalArgumentException e) {
+            e.printStackTrace();
+        } catch (InvocationTargetException | NoSuchMethodException e) {
+            // Exception d'origine de l'objet mere
+            throw e;
         }
     }
 
 
-    public Object execute_METHODE (Object object, String methode_name, Object[] params) throws Exception {
+    public static Object executeMethod_WR (Object object, String methode_name, Object[] params) throws ReflectiveOperationException  {
         Class <?> clazz = object.getClass();
-        Class <?>[] type_params = this.get_paramsTYPE(params);
+        Class <?>[] type_params = Reflexion.get_paramsTYPE(params);
 
         try {
             Method method = clazz.getDeclaredMethod(methode_name, type_params);
-            return method.invoke(object, params); // appeller la methode
-        } catch (NoSuchMethodException | SecurityException e) {
-            /// throws Exception
-            throw e; 
+            return method.invoke(object, params);
+            // appeller la methode
+        } catch (SecurityException | IllegalAccessException | IllegalArgumentException e) {
+            e.printStackTrace();
+        } catch (InvocationTargetException | NoSuchMethodException e) {
+            // Exception d'origine de l'objet mere
+            throw e;
         }
+        return null;
     }
+
+    public static Object executeMethod_WR (Object object, String methode_name, Object[] params, Class<?>[] type_params) throws ReflectiveOperationException  {
+        Class <?> clazz = object.getClass();
+
+        try {
+            Method method = clazz.getDeclaredMethod(methode_name, type_params);
+            return method.invoke(object, params);
+            // appeller la methode
+        } catch (SecurityException | IllegalAccessException | IllegalArgumentException e) {
+            e.printStackTrace();
+        } catch (InvocationTargetException | NoSuchMethodException e) {
+            // Exception d'origine de l'objet mere
+            throw e;
+        }
+        return null;
+    }
+
+
 
 
 

@@ -49,7 +49,7 @@ public class Reflexion {
         Class <?> clazz = object.getClass();
         
         try {
-            Method method = clazz.getDeclaredMethod(methode_name, type_params);
+            Method method = Reflexion.get_method(clazz, methode_name, type_params);
             method.invoke(object, params); // appeller la methode
         } catch (SecurityException | IllegalAccessException | IllegalArgumentException e) {
             e.printStackTrace();
@@ -66,7 +66,7 @@ public class Reflexion {
         Class <?>[] type_params = Reflexion.get_paramsTYPE(params);
 
         try {
-            Method method = clazz.getDeclaredMethod(methode_name, type_params);
+            Method method = Reflexion.get_method(clazz, methode_name, type_params);
             method.invoke(object, params); // appeller la methode
         } catch (SecurityException | IllegalAccessException | IllegalArgumentException e) {
             e.printStackTrace();
@@ -82,7 +82,7 @@ public class Reflexion {
         Class <?>[] type_params = Reflexion.get_paramsTYPE(params);
 
         try {
-            Method method = clazz.getDeclaredMethod(methode_name, type_params);
+            Method method = Reflexion.get_method(clazz, methode_name, type_params);
             return method.invoke(object, params);
             // appeller la methode
         } catch (SecurityException | IllegalAccessException | IllegalArgumentException e) {
@@ -98,7 +98,7 @@ public class Reflexion {
         Class <?> clazz = object.getClass();
 
         try {
-            Method method = clazz.getDeclaredMethod(methode_name, type_params);
+            Method method = Reflexion.get_method(clazz, methode_name, type_params);
             return method.invoke(object, params);
             // appeller la methode
         } catch (SecurityException | IllegalAccessException | IllegalArgumentException e) {
@@ -110,6 +110,15 @@ public class Reflexion {
         return null;
     }
 
+    private static Method get_method (Class <?> mere, String nom_methode, Class <?>[] type_params) throws NoSuchMethodException, SecurityException {
+       
+        if (type_params == null || 
+        (type_params != null && type_params.length == 0)) {
+            return mere.getDeclaredMethod(nom_methode);
+        } else {
+            return mere.getDeclaredMethod(nom_methode, type_params);
+        }
+    }
 
 
 

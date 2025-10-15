@@ -19,8 +19,9 @@ public class Generic implements Generic_DAO {
     private static Util_DB udb;
 
 
-/** constructeur   */
-    public Generic () throws Exception {
+/** constructeur   
+ * @throws ClassNotFoundException */
+    public Generic () throws ClassNotFoundException {
         // if (this.getReflexion() == null || this.getUdb() == null || this.getRequete() == null) {
         //     this.reflexion = null;
         //     this.udb = null; 

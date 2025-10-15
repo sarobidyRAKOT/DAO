@@ -11,7 +11,7 @@
     <property name="lib.dir" value="${basedir}/lib"/>
     <property name="dest-jarFile" value="D:/STADY/IT University/Semestre 6/Frame work/DAO/test/lib"/>
     <!-- <property name="dest-jarFile" value="D:/STADY/IT University/Semestre 6/Frame work/POC/Ticketing/lib"/> -->
-    <property name="dest-jarFile-sprint" value="D:/STADY/IT University/Semestre 6/Frame work/SPRINT/sprint/lib"/> 
+    <!-- <property name="dest-jarFile-sprint" value="D:/STADY/IT University/Semestre 6/Frame work/SPRINT/sprint/lib"/>  -->
     
     <path id="classpath" >
         <fileset dir="${lib.dir}" >
@@ -61,7 +61,7 @@
 
         <!-- COPIE FICHIER JAR DANS UN PROJET QUI L'UTILISE -->
         <copy todir="${dest-jarFile}"><fileset dir="${dist.dir}"/></copy>
-        <copy todir="${dest-jarFile-sprint}"><fileset dir="${dist.dir}"/></copy>
+        <!-- <copy todir="${dest-jarFile-sprint}"><fileset dir="${dist.dir}"/></copy> -->
     </target>
 
     

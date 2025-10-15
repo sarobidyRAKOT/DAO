@@ -22,7 +22,7 @@ public class LoaderProperties {
         Properties properties = new Properties();
         
         try {
-            properties.load(Thread.currentThread().getContextClassLoader().getResourceAsStream("config/app.properties"));
+            properties.load(Thread.currentThread().getContextClassLoader().getResourceAsStream("app.properties"));
         } catch (IOException e) {
             e.printStackTrace();
         }

@@ -22,7 +22,7 @@ public class LoaderProperties {
         Properties properties = new Properties();
         
         try {
-            properties.load(Thread.currentThread().getContextClassLoader().getResourceAsStream("app.properties"));
+            properties.load(Thread.currentThread().getContextClassLoader().getResourceAsStream("app_database.properties"));
         } catch (IOException e) {
             e.printStackTrace();
         }

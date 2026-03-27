@@ -1,6 +1,9 @@
 package mg.ITU.DAO.generique;
 
 import java.util.ArrayList;
+import java.util.stream.Collectors;
+
+import mg.ITU.DAO.annotation.Table;
 
 public class Query {
 
@@ -68,59 +71,79 @@ public class Query {
     }
 
 
-public static String GET_ALLwithCRITERIAIntervalle(
-        String table_name, 
-        ArrayList<Object[]> attrValues, 
-        Object[][] intervals, 
-        String[] colonnes_name, 
-        Pagination paging) {
+    public static String GET_ALLwithCRITERIAIntervalle(
+            String table_name, 
+            ArrayList<Object[]> attrValues, 
+            Object[][] intervals, 
+            String[] colonnes_name, 
+            Pagination paging) {
 
-    String requete = Query.GET_ALLwithCRITERIA(table_name, attrValues, paging);
+        String requete = Query.GET_ALLwithCRITERIA(table_name, attrValues, paging);
 
-    if (colonnes_name != null && intervals != null && colonnes_name.length == intervals.length) {
+        if (colonnes_name != null && intervals != null && colonnes_name.length == intervals.length) {
 
-        // Ajout du bloc WHERE ou AND selon la présence existante
-        if (!requete.contains("WHERE")) {
-            requete = requete.replace("???", "WHERE \r\n???");
-        } else {
-            requete = requete.replace("???", "AND \r\n???");
+            // Ajout du bloc WHERE ou AND selon la présence existante
+            if (!requete.contains("WHERE")) {
+                requete = requete.replace("???", "WHERE \r\n???");
+            } else {
+                requete = requete.replace("???", "AND \r\n???");
+            }
+
+            // Construction des critères d'intervalle
+            StringBuilder conditions = new StringBuilder();
+            for (int i = 0; i < intervals.length; i++) {
+                Object val1 = intervals[i][0];
+                Object val2 = intervals[i][1];
+                String column = colonnes_name[i];
+
+                if (val1 != null && val2 == null) conditions.append(Query.get_valueColumn(val1)).append(" <= ").append(column);
+                else if (val1 == null && val2 != null) conditions.append(column).append(" <= ").append(Query.get_valueColumn(val2));
+                else if (val1 != null && val2 != null) {
+                    conditions.append(column).append(" BETWEEN ").append(Query.get_valueColumn(val1)).append(" AND ").append(Query.get_valueColumn(val2));
+                } else continue;
+                conditions.append(" AND ");
+            }
+
+            // Suppression du dernier " AND " s'il existe
+            int len = conditions.length();
+            if (len >= 5) {
+                conditions.setLength(len - 5);
+            }
+
+            // Insertion des conditions dans la requête
+            requete = requete.replace("\r\n???", conditions.toString() + "***");
+
+            // Nettoyage final
+            if (requete.contains("WHERE ***")) {
+                requete = requete.replace("\r\nWHERE ***", "");
+            } else {
+                requete = requete.replace("***", "");
+            }
         }
 
-        // Construction des critères d'intervalle
-        StringBuilder conditions = new StringBuilder();
-        for (int i = 0; i < intervals.length; i++) {
-            Object val1 = intervals[i][0];
-            Object val2 = intervals[i][1];
-            String column = colonnes_name[i];
-
-            if (val1 != null && val2 == null) conditions.append(Query.get_valueColumn(val1)).append(" <= ").append(column);
-            else if (val1 == null && val2 != null) conditions.append(column).append(" <= ").append(Query.get_valueColumn(val2));
-            else if (val1 != null && val2 != null) {
-                conditions.append(column).append(" BETWEEN ").append(Query.get_valueColumn(val1)).append(" AND ").append(Query.get_valueColumn(val2));
-            } else continue;
-            conditions.append(" AND ");
-        }
-
-        // Suppression du dernier " AND " s'il existe
-        int len = conditions.length();
-        if (len >= 5) {
-            conditions.setLength(len - 5);
-        }
-
-        // Insertion des conditions dans la requête
-        requete = requete.replace("\r\n???", conditions.toString() + "***");
-
-        // Nettoyage final
-        if (requete.contains("WHERE ***")) {
-            requete = requete.replace("\r\nWHERE ***", "");
-        } else {
-            requete = requete.replace("***", "");
-        }
+        return requete;
     }
 
-    return requete;
-}
+    public static String UPDATE (Object origine, ArrayList <Object[]> attrValues, Object[] primaryKeyCle_valeur) throws Exception {
 
+        String requete;       
+        
+        String table_name = origine.getClass().getAnnotation(Table.class).value();
+
+        requete = "UPDATE "+table_name+"\n" +
+                  "SET\n";
+        
+        if (attrValues != null && attrValues.size() > 0) {
+            
+            requete += attrValues.stream().map(object -> "     "+object[0]
+                                .toString()+" = "+Query.get_valueColumn(object[1]))
+                                .collect(Collectors.joining(",\n"));
+            requete += "\nWHERE "+primaryKeyCle_valeur[0] +" = "+Query.get_valueColumn(primaryKeyCle_valeur[1])+";"; 
+            
+        } else throw new Exception("PAS DE VALEUR POUR UPDATE");
+
+        return requete;
+    }
 
 /** function PRIVATE */
 

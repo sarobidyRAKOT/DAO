@@ -13,3 +13,38 @@
 
     UTILISATION DE L'ANNOTATION `@PrimaryKey`
         . na tsy primary key aza ilay attribut de mety fona (problem a regle)
+
+```bash
+    app.base.url=jdbc:postgresql://localhost:5432/ma_base
+    app.base.utilisateur=postgres
+    app.base.mot.de.passe=1234
+    app.classe.for.name=org.postgresql.Driver
+```
+
+```java
+    public String ExecuteRequete (Connection conn, Map<String, String> parametres, String requete) throws Exception;
+```
+
+1. REQUETE UPDATE
+
+    - La requete dois suivre obligatoirement la forme si dessous.
+    - Pour le parametre de la fonction `parametres` on met l'`aleas` pour clé et la `colonne` reciproque pour ca valeur.
+
+    Ex:
+    ```sql
+        UPDATE table_name
+        SET 
+            ????
+        WHERE condition;
+    ```
+
+    ```java
+        String requete  = "UPDATE table_name\n" +
+        "SET \n" +
+        "    ????\n" + // ???
+        "WHERE id = 1";
+        
+        public String ExecuteRequete (Connection conn, Map<String, String> parametres, String requete) throws Exception;
+    ```
+
+- La table ne dois pas avoir plusieur primary key (un seul)

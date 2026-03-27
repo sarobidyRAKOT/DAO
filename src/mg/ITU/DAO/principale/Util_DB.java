@@ -44,7 +44,25 @@ public class Util_DB {
         
     }
     
-    
+    public static Util_DB get_Instance (String properties_file) throws ClassNotFoundException {
+
+        Properties properties = LoaderProperties.load_properties(properties_file);
+
+        String url = properties.getProperty("app.base.url");
+        String user = properties.getProperty("app.base.utilisateur");
+        String mdp = properties.getProperty("app.base.mot.de.passe");
+        String className = properties.getProperty("app.classe.for.name");
+
+        try {
+            Class.forName(className);
+            Util_DB util_BD = new Util_DB(url, user, mdp);
+            return util_BD;
+        } catch (ClassNotFoundException e) {
+            throw e;
+        }        
+        
+    }
+
     public Connection connect () throws SQLException {
                                 
         this.conn = DriverManager.getConnection(this.url, this.user, this.password);

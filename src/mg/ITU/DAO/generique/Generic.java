@@ -8,7 +8,14 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
+
+import com.google.gson.Gson;
 
 import mg.ITU.DAO.reflexion.*;
 import mg.ITU.DAO.annotation.*;
@@ -46,7 +53,7 @@ public class Generic implements Generic_DAO {
 
         
         is_classeValid(origine);
-        ArrayList <Field> fields_annoted = get_attrsANNOTED(origine);
+        ArrayList <Field> fields_annoted = get_attrsANNOTED(origine, false);
         ArrayList <Object[]> listscle_valeur = fieldsValue(origine, fields_annoted);
         
         // maka COLONNE primary key ra misy
@@ -105,7 +112,7 @@ public class Generic implements Generic_DAO {
 
         
         is_classeValid(origine); // VERIFICATION originie SI VALIDE
-        ArrayList <Field> fields_annoted = Generic.get_attrsANNOTED(origine);
+        ArrayList <Field> fields_annoted = Generic.get_attrsANNOTED(origine, false);
         ArrayList <Object[]> listscle_valeur = Generic.fieldsValue(origine, fields_annoted);
         
         // maka COLONNE primary key ra misy
@@ -160,7 +167,7 @@ public class Generic implements Generic_DAO {
 
 
         is_classeValid(origine); // VERIFICATION originie SI VALIDE
-        ArrayList <Field> fields_annoted = Generic.get_attrsANNOTED(origine);
+        ArrayList <Field> fields_annoted = Generic.get_attrsANNOTED(origine, false);
         ArrayList <Object[]> listscle_valeur = Generic.fieldsValue(origine, fields_annoted);
         
 
@@ -211,7 +218,7 @@ public class Generic implements Generic_DAO {
 
 
         is_classeValid(origine); // VERIFICATION originie SI VALIDE
-        ArrayList <Field> fields_annoted = Generic.get_attrsANNOTED(origine);
+        ArrayList <Field> fields_annoted = Generic.get_attrsANNOTED(origine, false);
         ArrayList <Object[]> listscle_valeur = Generic.fieldsValue(origine, fields_annoted);
         
 
@@ -259,7 +266,7 @@ public class Generic implements Generic_DAO {
 
 
         Generic.is_classeValid (origine); // VERIFIE SI LA CLASSE ORIGINE EST BIEN ANNOTER
-        ArrayList <Field> fields_annoted = Generic.get_attrsANNOTED(origine);
+        ArrayList <Field> fields_annoted = Generic.get_attrsANNOTED(origine, false);
 
         try {
 
@@ -308,7 +315,7 @@ public class Generic implements Generic_DAO {
 
 
         Generic.is_classeValid (origine); // VERIFIE SI LA CLASSE ORIGINE EST BIEN ANNOTER
-        ArrayList <Field> fields_annoted = Generic.get_attrsANNOTED(origine);
+        ArrayList <Field> fields_annoted = Generic.get_attrsANNOTED(origine, false);
 
         try {
             
@@ -359,7 +366,7 @@ public class Generic implements Generic_DAO {
 
         is_classeValid(origine); // VERIFICATION originie SI VALIDE
         Generic.validIntervalle(intervals, col_names); // INTERVALLE VALID
-        ArrayList <Field> fields_annoted = Generic.get_attrsANNOTED(origine);
+        ArrayList <Field> fields_annoted = Generic.get_attrsANNOTED(origine, false);
         ArrayList <Object[]> listscle_valeur = Generic.fieldsValue(origine, fields_annoted);
         
         try {
@@ -413,7 +420,7 @@ public class Generic implements Generic_DAO {
 
         is_classeValid(origine); // VERIFICATION originie SI VALIDE
         Generic.validIntervalle(intervals, col_names); // INTERVALLE VALID
-        ArrayList <Field> fields_annoted = Generic.get_attrsANNOTED(origine);
+        ArrayList <Field> fields_annoted = Generic.get_attrsANNOTED(origine, false);
         ArrayList <Object[]> listscle_valeur = Generic.fieldsValue(origine, fields_annoted);
         
         try {
@@ -453,6 +460,178 @@ public class Generic implements Generic_DAO {
         return list;
     }
 
+    @Override
+    public int updateObjectById (Connection conn, Object origine) throws Exception {
+        PreparedStatement statement = null;
+        ResultSet rSet = null;
+
+
+        is_classeValid(origine); // VERIFICATION originie SI VALIDE
+        ArrayList <Field> fields_annoted = Generic.get_attrsANNOTED(origine, true);
+        ArrayList <Object[]> listscle_valeur = Generic.fieldsValue(origine, fields_annoted);
+        
+        // if (value == null) {
+            //     throw new Exception("PRIMARY KEY OBLIGATOIRE !");
+            // }
+            
+            
+        try {
+            Object[] primaryKeyCle_valeur = get_fieldValuePrimaryKey(origine);
+            if (primaryKeyCle_valeur == null) {
+                throw new Exception("PRIMARY KEY OBLIGATOIRE !");
+            }
+
+            // String table_name = origine.getClass().getAnnotation(Table.class).value();
+            String requete = Query.UPDATE(origine, listscle_valeur, primaryKeyCle_valeur);
+            
+
+
+            System.out.println(requete);
+            statement = conn.prepareStatement(requete, PreparedStatement.RETURN_GENERATED_KEYS);
+            int nbr_update = statement.executeUpdate(); // EXECUTE UPDATE ...
+            
+            rSet = statement.getGeneratedKeys();
+            Generic.set_ID(origine, rSet, fields_annoted);
+
+            return nbr_update;
+        } catch (SQLException e0) {
+            e0.printStackTrace();
+            // throw e0;
+        } catch (Throwable e) {
+            // Probleme d'invocation
+            throw (Exception) e;
+        } finally {
+
+            fields_annoted.removeAll(fields_annoted);
+            listscle_valeur.removeAll(listscle_valeur);
+            try {
+                // if (conn != null) conn.close();
+                if (statement != null) statement.close();
+                if (rSet != null) rSet.close();
+            } catch (SQLException e2) {
+                e2.printStackTrace();
+            }
+        }
+        return 0;
+    }
+
+    @Override
+    public String get (Connection conn, Map<String, String> colAleas, String requete) throws Exception {
+
+        PreparedStatement statement = null;
+        ResultSet rSet = null;
+        List <Map<String, Object>> list = new ArrayList <> ();
+
+        
+        try {
+            validRequete(colAleas, requete);
+
+            String colonnes = colAleas.entrySet().stream().map(e -> "\r     "+e.getValue() + " AS " +e.getKey()).collect(Collectors.joining(",\n"));
+            requete = requete.replace("????", "\n"+colonnes+"\n");
+            
+            System.out.println(requete);
+                        
+            statement = conn.prepareStatement(requete);
+            rSet = statement.executeQuery(); // EXECUTE ...
+            
+            Set<String> keys = colAleas.keySet();
+            while (rSet != null && rSet.next()) { // ligne
+
+                HashMap<String, Object> val = new HashMap<>(); // nouveau map
+                for (String key : keys) val.put(key, rSet.getObject(key));
+                list.add(val);
+            }
+
+            Gson gson = new Gson();
+            return gson.toJson(list);            
+
+        } catch (SQLException e0) {
+            e0.printStackTrace();
+            // throw e0;
+        } catch (Throwable e) {
+            // Probleme d'invocation
+            throw (Exception) e;
+        } finally {
+
+            try {
+                if (statement != null) statement.close();
+                if (rSet != null) rSet.close();
+            } catch (SQLException e2) {
+                e2.printStackTrace();
+            }
+        }
+
+        return null;
+    }
+    // public String ExecuteRequete (Connection conn, Map<String, String> parametres, String requete) throws Exception {
+
+    //     PreparedStatement statement = null;
+    //     ResultSet rSet = null;
+    //     List <Map<String, String>> list = new ArrayList <> ();
+
+
+    //     Map<String, String> aliasValue = new HashMap<>();
+    //     aliasValue.put("nom", "")
+    //     try {
+    //         validRequete(requete);
+                        
+    //         String colonnes = parametres.entrySet().stream().map(e -> e.getValue() + "AS" +e.getKey()).collect(Collectors.joining(",\n"));
+    //         requete = requete.replace("????", "\n"+colonnes+"\n");
+            
+    //         System.out.println(requete);
+    //         statement = conn.prepareStatement(requete);
+            
+    //         rSet = statement.executeQuery(); // EXECUTE ...
+
+    //         Set <String> keys = parametres.keySet();
+    //         HashMap<String, String> val = new HashMap<>();
+
+    //         while (rSet != null && rSet.next()) { // ligne
+    //             for (String key : keys) { // Colonnes
+    //                 val.put(key, rSet.getString(key));
+    //             }
+    //             list.add(val);
+    //             val.clear();
+    //         }
+
+    //         Gson gson = new Gson();
+    //         return gson.toJson(list);            
+
+    //     } catch (SQLException e0) {
+    //         e0.printStackTrace();
+    //         // throw e0;
+    //     } catch (Throwable e) {
+    //         // Probleme d'invocation
+    //         throw (Exception) e;
+    //     } finally {
+
+    //         try {
+    //             if (statement != null) statement.close();
+    //             if (rSet != null) rSet.close();
+    //         } catch (SQLException e2) {
+    //             e2.printStackTrace();
+    //         }
+    //     }
+
+    //     return null;
+    // }
+
+
+    private static boolean validRequete (Map<String, String> colAleas, String requete) throws Exception {
+
+
+        String word = "SELECT\n" +
+                    "    ????\n" +
+                    "FROM";
+        if (colAleas != null && 
+            colAleas.size() > 0 && 
+            requete.contains(word)) {
+            return true;
+        }
+
+        return false;
+    }
+
 
 
 
@@ -473,14 +652,14 @@ public class Generic implements Generic_DAO {
     @SuppressWarnings("unlikely-arg-type")
     private static void set_ID (Object mere, ResultSet resultSet, ArrayList <Field> annoted_field) throws Throwable {
         // ArrayList <Object> list_object = new ArrayList <> ();
-
+        
         ArrayList <Field> fields_PK  = new ArrayList<>();
         for (Field field : annoted_field) {
             if (field.isAnnotationPresent(PrimaryKey.class)) fields_PK.add(field);
         }
-
+        
         try {
-            while (resultSet != null && resultSet.next()) {
+            while (resultSet.next()) {
                 // APPEL DE SETTER ...
                 Generic.setter(mere, fields_PK, resultSet);
             }
@@ -532,6 +711,16 @@ public class Generic implements Generic_DAO {
         }
     }
 
+
+    private static Object getValueFromField (Object mere, Field field) throws ReflectiveOperationException {
+        if (field == null) {
+            return null;            
+        }
+        String attr = field.getName().substring(0, 1).toUpperCase() + field.getName().substring(1);
+
+        return Reflexion.executeMethod_WR (mere, "get"+attr, null);
+    }
+
     private static ArrayList <Object[]> fieldsValue (Object mere, ArrayList <Field> fields_annoted) throws ReflectiveOperationException {
         
         // GET FIELDS ANNOTER ...
@@ -539,14 +728,11 @@ public class Generic implements Generic_DAO {
 
         for (Field field : fields_annoted) {
             // RENDRE MAJUSCLE AU PREMIER LETTRE ... 
-            String attr = field.getName().substring(0, 1).toUpperCase() + field.getName().substring(1);
 
-            Object value = Reflexion.executeMethod_WR (mere, "get"+attr, null);
+            Object value = getValueFromField(mere, field);
             if (value != null) {
                 Colonne colonne = field.getAnnotation(Colonne.class);
-                Object[] cle_valeur = new Object[] {
-                    colonne.value(), value
-                };
+                Object[] cle_valeur = new Object[] { colonne.value(), value };
                 fields.add(cle_valeur);
             }
         
@@ -555,7 +741,7 @@ public class Generic implements Generic_DAO {
         return fields;
     }
 
-    private static ArrayList <Field> get_attrsANNOTED (Object mere) {
+    private static ArrayList <Field> get_attrsANNOTED (Object mere, boolean excludePrimaryKey) {
         /**
          * GET ATTRIBUT ANNOTER DANS LA CLASSE MERE ...
          */
@@ -566,8 +752,37 @@ public class Generic implements Generic_DAO {
                 fields_annoted.add(field);
             }
         }
-
+        if (excludePrimaryKey) {
+            for (Field field : fields_annoted) {
+                if (field.isAnnotationPresent(PrimaryKey.class)) {
+                    fields_annoted.remove(field);
+                    break;
+                }
+            }
+        }
+        
         return fields_annoted;
+    }
+
+    private static Object[] get_fieldValuePrimaryKey (Object mere) throws ReflectiveOperationException {
+        /**
+         * GET ATTRIBUT ANNOTER DANS LA CLASSE MERE ...
+         */
+        Field[] fields = mere.getClass().getDeclaredFields();
+        Field fieldPrimaryKey = null;
+        for (Field field : fields) {
+            if (field.isAnnotationPresent(PrimaryKey.class)) {
+                fieldPrimaryKey = field;
+                break;
+            }
+        }
+        
+        Object value = getValueFromField(mere, fieldPrimaryKey);
+        if (value == null) {
+            return null;
+        }
+        Colonne colonne = fieldPrimaryKey.getAnnotation(Colonne.class);
+        return new Object[] { colonne.value(), value };
     }
 
     private static void is_classeValid (Object mere) throws ExecutionException {
@@ -596,6 +811,8 @@ public class Generic implements Generic_DAO {
             throw new ExecutionException(err.replace("???", "LA CLASSE "+mere.getClass().getName()+" DOIT ETRE ANNOTEE `@Table`"), null);
         }
     }
+
+
 
 
 /** GETTERS */

@@ -608,18 +608,18 @@ public class Generic implements Generic_DAO {
         return false;
     }
 
-    private static void validIntervalle (Object[][] intervals, String[] colonnes_name) throws Exception {
+    // private static void validIntervalle (Object[][] intervals, String[] colonnes_name) throws Exception {
 
-        if (intervals != null && colonnes_name != null) {
-            if (intervals.length == colonnes_name.length) {
-                for (Object[] inter : intervals) {
-                    if (inter.length != 2) throw new Exception("INCOMPATIBLE INTERVALLE, 2 OBJETS SEULEMENT");  
-                }
-            } else throw new Exception("LE NOMBRE D'INTERVAL NE CONVIENT PAS AU NOMBRE DE COLONNE");
-        } 
+    //     if (intervals != null && colonnes_name != null) {
+    //         if (intervals.length == colonnes_name.length) {
+    //             for (Object[] inter : intervals) {
+    //                 if (inter.length != 2) throw new Exception("INCOMPATIBLE INTERVALLE, 2 OBJETS SEULEMENT");  
+    //             }
+    //         } else throw new Exception("LE NOMBRE D'INTERVAL NE CONVIENT PAS AU NOMBRE DE COLONNE");
+    //     } 
 
-        // return true;
-    }
+    //     // return true;
+    // }
 
     @SuppressWarnings("unlikely-arg-type")
     private static void set_ID (Object mere, ResultSet resultSet, ArrayList <Field> annoted_field) throws Throwable {

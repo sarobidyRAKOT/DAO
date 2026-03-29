@@ -1,26 +1,26 @@
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.stream.Collectors;
+// import java.time.LocalDateTime;
+// import java.util.ArrayList;
+// import java.util.stream.Collectors;
 
-import mg.ITU.DAO.principale.Condition;
-import mg.ITU.DAO.principale.IntervalCondition;
+// import mg.ITU.DAO.principale.Condition;
+// import mg.ITU.DAO.principale.IntervalCondition;
 
 public class App {
 
     public static void main(String[] args) throws Exception {
         
-        LocalDateTime date = LocalDateTime.of(2026, 3, 27, 13, 57, 10);
+        // LocalDateTime date = LocalDateTime.of(2026, 3, 27, 13, 57, 10);
 
-        Condition <LocalDateTime> first = new Condition<>(date, "<=", "r.date_arrivee::DATE");
-        Condition <LocalDateTime> second = new Condition<>(date.plusMinutes(50), ">", "r.date_arrivee::DATE");
+        // Condition <LocalDateTime> first = new Condition<>(date, "<=", "r.date_arrivee::DATE");
+        // Condition <LocalDateTime> second = new Condition<>(date.plusMinutes(50), ">", "r.date_arrivee::DATE");
 
-        ArrayList<Object[]> list = new ArrayList<>();
-        list.add(new Object[] {"tonfa", "tay"});
-        list.add(new Object[] {"tonfa1", "tay1"});
-        list.add(new Object[] {"tonfa2", "tay2"});
+        // ArrayList<Object[]> list = new ArrayList<>();
+        // list.add(new Object[] {"tonfa", "tay"});
+        // list.add(new Object[] {"tonfa1", "tay1"});
+        // list.add(new Object[] {"tonfa2", "tay2"});
 
-        String t = list.stream().map(objs -> objs[0]+" = "+objs[1]).collect(Collectors.joining("\nAND "));
-        System.out.println(t);
+        // String t = list.stream().map(objs -> objs[0]+" = "+objs[1]).collect(Collectors.joining("\nAND "));
+        // System.out.println(t);
         // IntervalCondition <LocalDateTime> iCondition = new IntervalCondition<>(date, "r.date_arrivee::DATE", date.plusHours(1));
 
         // IntervalCondition <LocalDateTime> iCondition = new IntervalCondition<>(date, "r.date_arrivee::DATE", date.plusHours(1));

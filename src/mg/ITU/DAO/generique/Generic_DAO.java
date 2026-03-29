@@ -4,6 +4,8 @@ import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Map;
 
+import mg.ITU.DAO.principale.IntervalCondition;
+
 public interface Generic_DAO {
 
 /** INTERFACE GENERIC_DAO ... */  
@@ -19,13 +21,13 @@ public interface Generic_DAO {
      */
     public int save (Object origine) throws Exception;
     public ArrayList<Object> get_all (Object origine, String apresWhere, Pagination paging) throws Exception;
-    public ArrayList<Object> get_allWith_criteriaINTERV(Object origine, String apresWhere, Pagination paging, Object[][] intervals, String[] col_names) throws Exception;
+    public ArrayList<Object> get_allWith_criteriaINTERV(Connection con, Object origine, IntervalCondition <?> [] iConditions, String apresWhere, Pagination paging) throws Exception;
 
 /** fonction variante avec un parametre Connection */
     public ArrayList<Object> get_allWith_CRITERIA (Connection conn, Object origine, String apresWhere, Pagination paging) throws Exception;  
     public int save (Connection conn, Object origine) throws Exception;
     public ArrayList<Object> get_all(Connection conn, Object origine, String apresWhere, Pagination paging) throws Exception;
-    public ArrayList<Object> get_allWith_criteriaINTERV(Connection conn, Object origine, String apresWhere, Pagination paging, Object[][] intervals, String[] col_names) throws Exception;
+    // public ArrayList<Object> get_allWith_criteriaINTERV(Object origine, String apresWhere, Pagination paging, Object[][] intervals, String[] col_names) throws Exception;
 
 /** 
  * FONCTION EXECUTE REQUETE

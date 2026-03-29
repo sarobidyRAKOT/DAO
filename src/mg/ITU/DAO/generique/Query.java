@@ -1,9 +1,11 @@
 package mg.ITU.DAO.generique;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.stream.Collectors;
 
 import mg.ITU.DAO.annotation.Table;
+import mg.ITU.DAO.principale.IntervalCondition;
 
 public class Query {
 
@@ -39,7 +41,6 @@ public class Query {
         return requete;
     }
 
-
     public static String GET_ALL (String table_name, Pagination paging) {
         String requete = "SELECT * FROM "+table_name+"\r\n???";
         if (paging != null) {
@@ -48,77 +49,44 @@ public class Query {
         return requete;
     }
 
-    public static String GET_ALLwithCRITERIA (String table_name, ArrayList <Object[]> attrValues, Pagination paging) {
+    public static String GET_ALLwithCRITERIA (String table_name, ArrayList <Object[]> attrValues, String apresWhere, Pagination paging) {
 
-        String requete;
-        // String table_name = mere.getClass().getAnnotation(Table.class).value();
-        requete = "SELECT * FROM "+table_name;
+        String requete = "SELECT\n"+
+        "   *\n"+
+        "FROM "+table_name;
         if (attrValues != null && attrValues.size() > 0) {
-            requete += "\r\nWHERE ";
-            for (int i = 0; i < attrValues.size(); i++) {
-                String value = Query.get_valueColumn(attrValues.get(i)[1]);
-                requete += (String) attrValues.get(i)[0] +" = "+value + " AND ";
-            }   
-            requete += "...";
-            requete = requete.replace("AND ...", "\r\n???");
-        } else requete += "\r\n???";
+            requete += "\nWHERE "+attrValues.stream().map(objs -> objs[0].toString()+" = "+Query.get_valueColumn(objs[1])).collect(Collectors.joining("\nAND "));
+        }
+
+        if (apresWhere != null && !apresWhere.isEmpty()) {
+            requete += "\n"+apresWhere;
+        }
 
         if (paging != null) {
-            requete += pagination_query (paging);
+            requete += "\n"+paging.toString();
         }
 
         return requete;
     }
 
 
-    public static String GET_ALLwithCRITERIAIntervalle(
-            String table_name, 
-            ArrayList<Object[]> attrValues, 
-            Object[][] intervals, 
-            String[] colonnes_name, 
-            Pagination paging) {
+    public static <T> String GET_ALLwithCRITERIAIntervalle (String table_name, ArrayList<Object[]> attrValues, IntervalCondition <?>[] iConditions, String apresWhere, Pagination paging) {
 
-        String requete = Query.GET_ALLwithCRITERIA(table_name, attrValues, paging);
+        String requete = Query.GET_ALLwithCRITERIA(table_name, attrValues, null, null);
 
-        if (colonnes_name != null && intervals != null && colonnes_name.length == intervals.length) {
 
-            // Ajout du bloc WHERE ou AND selon la présence existante
-            if (!requete.contains("WHERE")) {
-                requete = requete.replace("???", "WHERE \r\n???");
-            } else {
-                requete = requete.replace("???", "AND \r\n???");
-            }
+        if (iConditions != null && iConditions.length > 0) {
+            if (requete.contains("WHERE")) {
+                requete += "\nAND ";
+            } else requete += "WHERE ";
+            requete += Arrays.stream(iConditions).map(iC -> iC.getQuery()).collect(Collectors.joining("\nAND "));
+        }
 
-            // Construction des critères d'intervalle
-            StringBuilder conditions = new StringBuilder();
-            for (int i = 0; i < intervals.length; i++) {
-                Object val1 = intervals[i][0];
-                Object val2 = intervals[i][1];
-                String column = colonnes_name[i];
-
-                if (val1 != null && val2 == null) conditions.append(Query.get_valueColumn(val1)).append(" <= ").append(column);
-                else if (val1 == null && val2 != null) conditions.append(column).append(" <= ").append(Query.get_valueColumn(val2));
-                else if (val1 != null && val2 != null) {
-                    conditions.append(column).append(" BETWEEN ").append(Query.get_valueColumn(val1)).append(" AND ").append(Query.get_valueColumn(val2));
-                } else continue;
-                conditions.append(" AND ");
-            }
-
-            // Suppression du dernier " AND " s'il existe
-            int len = conditions.length();
-            if (len >= 5) {
-                conditions.setLength(len - 5);
-            }
-
-            // Insertion des conditions dans la requête
-            requete = requete.replace("\r\n???", conditions.toString() + "***");
-
-            // Nettoyage final
-            if (requete.contains("WHERE ***")) {
-                requete = requete.replace("\r\nWHERE ***", "");
-            } else {
-                requete = requete.replace("***", "");
-            }
+        if (apresWhere != null && !apresWhere.isEmpty()) {
+            requete += "\n"+apresWhere;
+        }
+        if (paging != null) {
+            requete += "\n"+paging.toString();
         }
 
         return requete;
@@ -145,8 +113,6 @@ public class Query {
         return requete;
     }
 
-/** function PRIVATE */
-
     private static String pagination_query (Pagination paging) {
         String req = "";
         // if (attr_primaryKey != null) {
@@ -156,7 +122,6 @@ public class Query {
         req += "\r\nLIMIT "+paging.LIMIT+ " OFFSET "+paging.OFFSET;
         return req;
     }
-
 
     private static String get_valueColumn (Object object) {
         String req = null;
@@ -169,4 +134,8 @@ public class Query {
         return req;
     }
 
+
+    public static void printQuery (String table_name, String requete) {
+        System.out.println("\nRequete FROM ["+table_name+"] ******:\n"+requete+"\nFin ******");
+    }
 }

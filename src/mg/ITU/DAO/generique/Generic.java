@@ -65,13 +65,10 @@ public class Generic implements Generic_DAO {
             conn = Generic.udb.connect();
             String table_name = origine.getClass().getAnnotation(Table.class).value();
 
-            String requete = Query.GET_ALLwithCRITERIA(table_name, listscle_valeur, paging);
+            String requete = Query.GET_ALLwithCRITERIA(table_name, listscle_valeur, apresWhere, paging);
 
-            if (apresWhere != null && !apresWhere.isEmpty()) {
-                requete = requete.replace("???", apresWhere);
-            } else requete = requete.replace("???", "");
-
-            System.out.println(requete);
+            
+            Query.printQuery(table_name, requete);
             statement = conn.prepareStatement(requete);
             
             rSet = statement.executeQuery(); // EXECUTE ...
@@ -100,7 +97,6 @@ public class Generic implements Generic_DAO {
         
     }
 
-
     @Override
     public ArrayList<Object> get_allWith_CRITERIA(Connection conn, Object origine, String apresWhere, Pagination paging) throws Exception {
         
@@ -122,13 +118,9 @@ public class Generic implements Generic_DAO {
 
         try {
             String table_name = origine.getClass().getAnnotation(Table.class).value();
-            String requete = Query.GET_ALLwithCRITERIA(table_name, listscle_valeur, paging);
+            String requete = Query.GET_ALLwithCRITERIA(table_name, listscle_valeur, apresWhere, paging);
 
-            if (apresWhere != null && !apresWhere.isEmpty()) {
-                requete = requete.replace("???", apresWhere);
-            } else requete = requete.replace("???", "");
-
-            System.out.println(requete);
+            Query.printQuery(table_name, requete);
             statement = conn.prepareStatement(requete);
             
             rSet = statement.executeQuery(); // EXECUTE ...
@@ -155,8 +147,6 @@ public class Generic implements Generic_DAO {
         return list;
         
     }
-
-
 
     @Override
     public int save (Object origine) throws Exception {
@@ -354,33 +344,78 @@ public class Generic implements Generic_DAO {
     }
 
 
+    // @Override
+    // public ArrayList<Object> get_allWith_criteriaINTERV (Object origine, String apresWhere, Pagination paging, Object[][] intervals, String[] col_names) throws Exception {
+       
+       
+    //     Connection conn = null;
+    //     PreparedStatement statement = null;
+    //     ResultSet rSet = null;
+    //     ArrayList <Object> list = new ArrayList <> ();
+
+
+    //     is_classeValid(origine); // VERIFICATION originie SI VALIDE
+    //     Generic.validIntervalle(intervals, col_names); // INTERVALLE VALID
+    //     ArrayList <Field> fields_annoted = Generic.get_attrsANNOTED(origine, false);
+    //     ArrayList <Object[]> listscle_valeur = Generic.fieldsValue(origine, fields_annoted);
+        
+    //     try {
+    //         conn = Generic.udb.connect();
+            
+    //         String table_name = origine.getClass().getAnnotation(Table.class).value();
+    //         String requete = Query.GET_ALLwithCRITERIAIntervalle(table_name, listscle_valeur, intervals, col_names, apresWhere, paging);
+            
+    //         if (apresWhere != null && !apresWhere.isEmpty()) {
+    //             requete = requete.replace("???", apresWhere);
+    //         } else requete = requete.replace("\r\n???", "");
+            
+            
+    //         System.out.println(requete);
+    //         statement = conn.prepareStatement(requete);
+            
+    //         rSet = statement.executeQuery(); // EXECUTE ...
+    //         list = Generic.traitement_resultSet(origine, rSet, fields_annoted);
+            
+
+    //     } catch (SQLException e0) {
+    //         e0.printStackTrace();
+    //         // throw e0;
+    //     } catch (Throwable e) {
+    //         // Probleme d'invocation
+    //         throw (Exception) e;
+    //     } finally {
+
+    //         listscle_valeur.removeAll(listscle_valeur);
+    //         fields_annoted.removeAll(fields_annoted);
+    //         try {
+    //             if (conn != null) conn.close();
+    //             if (statement != null) statement.close();
+    //             if (rSet != null) rSet.close();
+    //         } catch (SQLException e2) {
+    //             e2.printStackTrace();
+    //         }
+    //     }
+    //     return list;
+    // }
+
     @Override
-    public ArrayList<Object> get_allWith_criteriaINTERV (Object origine, String apresWhere, Pagination paging, Object[][] intervals, String[] col_names) throws Exception {
-       
-       
-        Connection conn = null;
+    public ArrayList<Object> get_allWith_criteriaINTERV(Connection conn, Object origine, IntervalCondition<?>[] iConditions, String apresWhere, Pagination paging) throws Exception {
+
         PreparedStatement statement = null;
         ResultSet rSet = null;
         ArrayList <Object> list = new ArrayList <> ();
 
-
         is_classeValid(origine); // VERIFICATION originie SI VALIDE
-        Generic.validIntervalle(intervals, col_names); // INTERVALLE VALID
         ArrayList <Field> fields_annoted = Generic.get_attrsANNOTED(origine, false);
         ArrayList <Object[]> listscle_valeur = Generic.fieldsValue(origine, fields_annoted);
-        
+
         try {
-            conn = Generic.udb.connect();
             
             String table_name = origine.getClass().getAnnotation(Table.class).value();
-            String requete = Query.GET_ALLwithCRITERIAIntervalle(table_name, listscle_valeur, intervals, col_names, paging);
+            String requete = Query.GET_ALLwithCRITERIAIntervalle(table_name, listscle_valeur, iConditions, apresWhere, paging);
             
-            if (apresWhere != null && !apresWhere.isEmpty()) {
-                requete = requete.replace("???", apresWhere);
-            } else requete = requete.replace("\r\n???", "");
-            
-            
-            System.out.println(requete);
+            // System.out.println(requete);
+            Query.printQuery(table_name, requete);
             statement = conn.prepareStatement(requete);
             
             rSet = statement.executeQuery(); // EXECUTE ...
@@ -389,62 +424,7 @@ public class Generic implements Generic_DAO {
 
         } catch (SQLException e0) {
             e0.printStackTrace();
-            // throw e0;
-        } catch (Throwable e) {
-            // Probleme d'invocation
-            throw (Exception) e;
-        } finally {
-
-            listscle_valeur.removeAll(listscle_valeur);
-            fields_annoted.removeAll(fields_annoted);
-            try {
-                if (conn != null) conn.close();
-                if (statement != null) statement.close();
-                if (rSet != null) rSet.close();
-            } catch (SQLException e2) {
-                e2.printStackTrace();
-            }
-        }
-        return list;
-    }
-
-
-    @Override
-    public ArrayList<Object> get_allWith_criteriaINTERV(Connection conn, Object origine, String apresWhere, Pagination paging, 
-            Object[][] intervals, String[] col_names) throws Exception {
-
-        PreparedStatement statement = null;
-        ResultSet rSet = null;
-        ArrayList <Object> list = new ArrayList <> ();
-
-
-        is_classeValid(origine); // VERIFICATION originie SI VALIDE
-        Generic.validIntervalle(intervals, col_names); // INTERVALLE VALID
-        ArrayList <Field> fields_annoted = Generic.get_attrsANNOTED(origine, false);
-        ArrayList <Object[]> listscle_valeur = Generic.fieldsValue(origine, fields_annoted);
-        
-        try {
-            
-            String table_name = origine.getClass().getAnnotation(Table.class).value();
-            String requete = Query.GET_ALLwithCRITERIAIntervalle(table_name, listscle_valeur, intervals, col_names, paging);
-            
-            if (apresWhere != null && !apresWhere.isEmpty()) {
-                requete = requete.replace("???", apresWhere);
-            } else requete = requete.replace("\r\n???", "");
-            
-            
-            System.out.println(requete);
-            statement = conn.prepareStatement(requete);
-            
-            rSet = statement.executeQuery(); // EXECUTE ...
-            list = Generic.traitement_resultSet(origine, rSet, fields_annoted);
-            
-
-        } catch (SQLException e0) {
-            e0.printStackTrace();
-            // throw e0;
-        } catch (Throwable e) {
-            // Probleme d'invocation
+        } catch (Throwable e) { // Probleme d'invocation
             throw (Exception) e;
         } finally {
 
@@ -459,6 +439,57 @@ public class Generic implements Generic_DAO {
         }
         return list;
     }
+
+    // @Override
+    // public ArrayList<Object> get_allWith_criteriaINTERV(Connection conn, Object origine, String apresWhere, Pagination paging, 
+    //         Object[][] intervals, String[] col_names) throws Exception {
+
+    //     PreparedStatement statement = null;
+    //     ResultSet rSet = null;
+    //     ArrayList <Object> list = new ArrayList <> ();
+
+
+    //     is_classeValid(origine); // VERIFICATION originie SI VALIDE
+    //     Generic.validIntervalle(intervals, col_names); // INTERVALLE VALID
+    //     ArrayList <Field> fields_annoted = Generic.get_attrsANNOTED(origine, false);
+    //     ArrayList <Object[]> listscle_valeur = Generic.fieldsValue(origine, fields_annoted);
+        
+    //     try {
+            
+    //         String table_name = origine.getClass().getAnnotation(Table.class).value();
+    //         String requete = Query.GET_ALLwithCRITERIAIntervalle(table_name, listscle_valeur, intervals, col_names, paging);
+            
+    //         if (apresWhere != null && !apresWhere.isEmpty()) {
+    //             requete = requete.replace("???", apresWhere);
+    //         } else requete = requete.replace("\r\n???", "");
+            
+            
+    //         System.out.println(requete);
+    //         statement = conn.prepareStatement(requete);
+            
+    //         rSet = statement.executeQuery(); // EXECUTE ...
+    //         list = Generic.traitement_resultSet(origine, rSet, fields_annoted);
+            
+
+    //     } catch (SQLException e0) {
+    //         e0.printStackTrace();
+    //         // throw e0;
+    //     } catch (Throwable e) {
+    //         // Probleme d'invocation
+    //         throw (Exception) e;
+    //     } finally {
+
+    //         listscle_valeur.removeAll(listscle_valeur);
+    //         fields_annoted.removeAll(fields_annoted);
+    //         try {
+    //             if (statement != null) statement.close();
+    //             if (rSet != null) rSet.close();
+    //         } catch (SQLException e2) {
+    //             e2.printStackTrace();
+    //         }
+    //     }
+    //     return list;
+    // }
 
     @Override
     public int updateObjectById (Connection conn, Object origine) throws Exception {
@@ -563,59 +594,6 @@ public class Generic implements Generic_DAO {
 
         return null;
     }
-    // public String ExecuteRequete (Connection conn, Map<String, String> parametres, String requete) throws Exception {
-
-    //     PreparedStatement statement = null;
-    //     ResultSet rSet = null;
-    //     List <Map<String, String>> list = new ArrayList <> ();
-
-
-    //     Map<String, String> aliasValue = new HashMap<>();
-    //     aliasValue.put("nom", "")
-    //     try {
-    //         validRequete(requete);
-                        
-    //         String colonnes = parametres.entrySet().stream().map(e -> e.getValue() + "AS" +e.getKey()).collect(Collectors.joining(",\n"));
-    //         requete = requete.replace("????", "\n"+colonnes+"\n");
-            
-    //         System.out.println(requete);
-    //         statement = conn.prepareStatement(requete);
-            
-    //         rSet = statement.executeQuery(); // EXECUTE ...
-
-    //         Set <String> keys = parametres.keySet();
-    //         HashMap<String, String> val = new HashMap<>();
-
-    //         while (rSet != null && rSet.next()) { // ligne
-    //             for (String key : keys) { // Colonnes
-    //                 val.put(key, rSet.getString(key));
-    //             }
-    //             list.add(val);
-    //             val.clear();
-    //         }
-
-    //         Gson gson = new Gson();
-    //         return gson.toJson(list);            
-
-    //     } catch (SQLException e0) {
-    //         e0.printStackTrace();
-    //         // throw e0;
-    //     } catch (Throwable e) {
-    //         // Probleme d'invocation
-    //         throw (Exception) e;
-    //     } finally {
-
-    //         try {
-    //             if (statement != null) statement.close();
-    //             if (rSet != null) rSet.close();
-    //         } catch (SQLException e2) {
-    //             e2.printStackTrace();
-    //         }
-    //     }
-
-    //     return null;
-    // }
-
 
     private static boolean validRequete (Map<String, String> colAleas, String requete) throws Exception {
 
@@ -623,18 +601,12 @@ public class Generic implements Generic_DAO {
         String word = "SELECT\n" +
                     "    ????\n" +
                     "FROM";
-        if (colAleas != null && 
-            colAleas.size() > 0 && 
-            requete.contains(word)) {
+        if (colAleas != null && colAleas.size() > 0 && requete.contains(word)) {
             return true;
         }
 
         return false;
     }
-
-
-
-
 
     private static void validIntervalle (Object[][] intervals, String[] colonnes_name) throws Exception {
 
@@ -673,7 +645,6 @@ public class Generic implements Generic_DAO {
 
     }
 
-
     private static ArrayList <Object> traitement_resultSet (Object mere, ResultSet resultSet, ArrayList <Field> annoted_field) throws Throwable {
         ArrayList <Object> list_object = new ArrayList <> ();
 
@@ -710,7 +681,6 @@ public class Generic implements Generic_DAO {
             Reflexion.executeMethod_NR(mere, "set"+attr, new Object[] { params[j] }, new Class<?>[] { String.class });
         }
     }
-
 
     private static Object getValueFromField (Object mere, Field field) throws ReflectiveOperationException {
         if (field == null) {
@@ -815,9 +785,11 @@ public class Generic implements Generic_DAO {
 
 
 
-/** GETTERS */
+    /** GETTERS */
     // public Reflexion getReflexion() { return reflexion; }
     public Util_DB getUdb() { return udb; }
+
+
 
 
 

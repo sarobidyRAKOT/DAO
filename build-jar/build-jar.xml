@@ -47,9 +47,22 @@
     
     <target name="compile" depends="build">
         <echo>[Compilation Start]</echo>
-        <javac srcdir="${src.java.dir}" destdir="${build.dir}" nowarn="true" debug="true" debuglevel="lines,vars,source" description="off" classpathref="classpath" includeantruntime="false" encoding="iso-8859-1">
+
+        <javac srcdir="${src.java.dir}" 
+            destdir="${build.dir}" 
+            nowarn="true" 
+            debug="true" 
+            debuglevel="lines,vars,source" 
+            description="off" 
+            classpathref="classpath" 
+            includeantruntime="false" 
+            encoding="iso-8859-1">
+
             <compilerarg value="-Xdoclint:none"/>
+            <compilerarg value="-parameters"/>
+
         </javac>
+
         <echo>[Compilation Done]</echo>
     </target>
 

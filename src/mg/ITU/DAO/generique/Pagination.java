@@ -10,6 +10,15 @@ public class Pagination {
         setOFFSET(offset);
     }
 
+    @Override
+    public String toString () {
+        // if (attr_primaryKey != null) {
+        //     String colonnePK = attr_primaryKey.getAnnotation(Colonne.class).value();
+        //     req = " ORDER BY "+colonnePK;
+        // }
+        return "LIMIT "+this.LIMIT+ " OFFSET "+this.OFFSET;
+    }
+
 
     private void setLIMIT(int limit) throws Exception {
         if (limit < 0) throw new Exception("LA LIMITE DU PAGINATION DOIS ETRE POSITIVE");
@@ -17,7 +26,7 @@ public class Pagination {
     }
     private void setOFFSET(int offset) throws Exception {
         // System.out.println("OFFSET");
-        if (offset < 0) throw new Exception("LE OFFSET DOIS TOUJOURS ETRE SUPP A 0");
+        if (offset < 0) throw new Exception("LE OFFSET DOIS TOUJOURS ETRE SUPP OU EGAL A 0");
         else this.OFFSET = offset;
     }
 }
